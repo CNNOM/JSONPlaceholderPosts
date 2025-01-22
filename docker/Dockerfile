@@ -17,5 +17,8 @@ RUN composer --version
 # Установка прав на выполнение Composer
 RUN chmod +x /usr/local/bin/composer
 
+RUN docker-php-ext-install pdo_mysql
+
+
 # Установка рабочей директории
 WORKDIR /var/www

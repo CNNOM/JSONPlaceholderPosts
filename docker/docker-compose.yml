@@ -10,12 +10,38 @@ services:
     working_dir: /var/www/
     volumes:
       - ../src:/var/www
+    depends_on:
+      - db # Указываем, что сервер зависит от базы данных
+
   nginx:
     image: nginx:1.19-alpine
     container_name: programwithgio-nginx
     restart: always
     ports:
-      - 8084:80
+      - "8084:80"
     volumes:
       - ../src:/var/www
       - ./nginx:/etc/nginx/conf.d
+
+  db:
+    image: mysql:5.7 # Используем официальный образ MySQL 5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword # Пароль для root-пользователя
+      MYSQL_DATABASE: posts # Имя базы данных, которая будет создана при запуске
+      MYSQL_USER: myuser # Имя пользователя базы данных
+      MYSQL_PASSWORD: mypassword # Пароль пользователя базы данных
+    volumes:
+      - mysql_data:/var/lib/mysql # Сохраняем данные базы данных в volume
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin # Используем официальный образ PHPMyAdmin
+    ports:
+      - "8085:80" # Пробрасываем порт 80 контейнера на порт 8082 хоста
+    environment:
+      PMA_HOST: db # Указываем, что PHPMyAdmin должен подключаться к контейнеру с базой данных
+      PMA_PORT: 3306 # Порт MySQL (по умолчанию 3306)
+    depends_on:
+      - db # Указываем, что PHPMyAdmin зависит от базы данных
+
+volumes:
+  mysql_data: # Создаём volume для хранения данных MySQL
